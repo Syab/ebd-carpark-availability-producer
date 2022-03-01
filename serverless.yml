@@ -1,0 +1,32 @@
+service: ebd-carpark-availability-producer
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  region: ap-southeast-1
+  runtime: go1.x
+  stage: ${opt:stage, 'dev'}
+  lambdaHashingVersion: 20201221 
+  environment:
+    ENV: ${self:provider.stage}
+
+package:
+  individually: true
+  patterns:
+    - '!./**'
+
+functions:
+  ebd-carpark-availability-producer:
+    package:
+      patterns:
+        - bin/main
+    handler: bin/main
+    description: ebd carpark availabilty batch dataset every minute
+    timeout: 15
+    memorySize: 512
+    events:
+      - schedule: 
+          rate: rate(1 minute)
+
+plugins:
+  - serverless-offline
